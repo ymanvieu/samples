@@ -44,45 +44,43 @@ public class UserServiceTest {
 	private UserRepository userRepo;
 
 	private long id = 0;
-	private String name;
+	private String updatedName;
 
 	/**
-	 * Name is updated because the annotated method update() is called from a
-	 * method outside of the object.
+	 * Name is updated because update() is called from a method outside of the object.
 	 */
 	@Test
 	public void testUpdate() {
-		name = "update";
+		updatedName = "update";
 
-		userService.update(id, name);
+		userService.update(id, updatedName);
 
-		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", name);
+		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", updatedName);
 	}
 
 	/**
-	 * Name is updated because the annotated method update() is called from a
-	 * method that used the proxied version of itself, going through the Spring
-	 * proxy wrapping.
+	 * Name is updated because update() is called from a method that used the proxied version of itself, 
+	 * going through Spring proxy wrapping.
 	 */
 	@Test
 	public void testUpdateWithProxiedUpdateMethodCalled() {
-		name = "updateWithProxiedUpdateMethodCalled";
+		updatedName = "updateWithProxiedUpdateMethodCalled";
 
-		userService.updateWithProxiedUpdateMethodCalled(id, name);
+		userService.updateWithProxiedUpdateMethodCalled(id, updatedName);
 
-		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", name);
+		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", updatedName);
 	}
 
 	/**
-	 * Name is not updated because the annotated method update() is called from
-	 * a method of the very same object, bypassing the Spring proxy wrapping.
+	 * Name is not updated because update() is called from a method of the very same object, 
+	 * bypassing Spring proxy wrapping.
 	 */
 	@Test
 	public void testUpdateWithInnerUpdateMethodCalled() {
 		String oldValue = "user";
-		name = "updateWithInnerUpdateMethodCalled";
+		updatedName = "updateWithInnerUpdateMethodCalled";
 
-		userService.updateWithInnerUpdateMethodCalled(id, name);
+		userService.updateWithInnerUpdateMethodCalled(id, updatedName);
 
 		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", oldValue);
 	}

@@ -36,10 +36,11 @@ public class UserService {
 
 		user.setName(name);
 
-		// no need to call userRepo.save() because user object is a managed
+		// No need to call userRepo.save() because 'user' object is a managed
 		// entity and a transaction is in progress from the start of this method
-		// to the return meaning all changes to the entity here will be commit
-		// at the return of this method.
+		// to the return, meaning all changes to the entity here will be commit at the return of this method.
+		
+		// It only applied if a transcation is in progress, otherwise nothing is persisted.
 
 		return user;
 	}
