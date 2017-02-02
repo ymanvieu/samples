@@ -44,16 +44,15 @@ public class JmsProducerApplication {
 	@Autowired
 	private JmsTemplate jms;
 
-	@Bean
+	@Bean(initMethod = "start", destroyMethod = "stop")
 	public BrokerService broker(@Value("${spring.activemq.broker-url}") String brokerUrl) throws Exception {
 		BrokerService broker = new BrokerService();
 		broker.addConnector(brokerUrl);
 		broker.setPersistent(false);
-		broker.start();
 		return broker;
 	}
 
-	@Scheduled(fixedDelay=5000)
+	@Scheduled(fixedDelay = 5000)
 	public void clock() {
 		ClockMessage o = new ClockMessage(new Date());
 		jms.convertAndSend("current-time", o);
