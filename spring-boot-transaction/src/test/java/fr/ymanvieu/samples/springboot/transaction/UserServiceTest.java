@@ -23,16 +23,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import fr.ymanvieu.samples.springboot.transaction.UserRepository;
-import fr.ymanvieu.samples.springboot.transaction.UserService;
-
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@SpringBootTest
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 @Sql("/insert_user.sql")
 public class UserServiceTest {
@@ -43,7 +39,7 @@ public class UserServiceTest {
 	@Autowired
 	private UserRepository userRepo;
 
-	private long id = 0;
+	private long id = 1;
 	private String updatedName;
 
 	/**
