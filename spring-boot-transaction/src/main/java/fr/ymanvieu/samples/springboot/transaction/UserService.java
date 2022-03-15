@@ -17,10 +17,13 @@
 package fr.ymanvieu.samples.springboot.transaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserService {
 
 	@Autowired
@@ -30,9 +33,9 @@ public class UserService {
 	private UserService thisProxiedService;
 
 	@Transactional
-	public UserEntity update(long id, String name) {
+	public void update(long id, String name) {
 
-		UserEntity user = userRepo.findOne(id);
+		UserEntity user = userRepo.findById(id).orElseThrow();
 
 		user.setName(name);
 
@@ -41,15 +44,13 @@ public class UserService {
 		// to the return, meaning all changes to the entity here will be commit at the return of this method.
 		
 		// It only applied if a transcation is in progress, otherwise nothing is persisted.
-
-		return user;
 	}
 
-	public UserEntity updateWithProxiedUpdateMethodCalled(long id, String name) {
-		return thisProxiedService.update(id, name);
+	public void updateWithProxiedUpdateMethodCalled(long id, String name) {
+		thisProxiedService.update(id, name);
 	}
 
-	public UserEntity updateWithInnerUpdateMethodCalled(long id, String name) {
-		return update(id, name);
+	public void updateWithInnerUpdateMethodCalled(long id, String name) {
+		update(id, name);
 	}
 }

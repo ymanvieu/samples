@@ -4,23 +4,26 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.ymanvieu.samples</groupId>
-	<artifactId>spring-boot-jms-activemq</artifactId>
+	<artifactId>spring-boot-activemq-embedded-broker</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.1.RELEASE</version>
+		<version>2.6.4</version>
 	</parent>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
+		<main-class>fr.ymanvieu.samples.springboot.jms.activemq.producer.JmsProducerApplication</main-class>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
+			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -32,11 +35,23 @@
 		</dependency>
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>receiver</id>
+			<properties>
+				<main-class>fr.ymanvieu.samples.springboot.jms.activemq.receiver.JmsReceiverApplication</main-class>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${main-class}</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

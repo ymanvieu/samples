@@ -19,15 +19,12 @@ package fr.ymanvieu.samples.springboot.transaction;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 @Sql("/insert_user.sql")
@@ -39,11 +36,14 @@ public class UserServiceTest {
 	@Autowired
 	private UserRepository userRepo;
 
-	private long id = 1;
+	@Autowired
+	private TransactionHandler transactionHandler;
+
+	private final long id = 1;
 	private String updatedName;
 
 	/**
-	 * Name is updated because update() is called from a method outside of the object.
+	 * Test with update() method called from a method outside of the object.
 	 */
 	@Test
 	public void testUpdate() {
@@ -51,11 +51,11 @@ public class UserServiceTest {
 
 		userService.update(id, updatedName);
 
-		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", updatedName);
+		assertThat(userRepo.findById(id).orElseThrow()).hasFieldOrPropertyWithValue("name", updatedName);
 	}
 
 	/**
-	 * Name is updated because update() is called from a method that used the proxied version of itself, 
+	 * Test with update() method called from a method that used the proxied version of itself,
 	 * going through Spring proxy wrapping.
 	 */
 	@Test
@@ -64,12 +64,11 @@ public class UserServiceTest {
 
 		userService.updateWithProxiedUpdateMethodCalled(id, updatedName);
 
-		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", updatedName);
+		assertThat(userRepo.findById(id).orElseThrow()).hasFieldOrPropertyWithValue("name", updatedName);
 	}
 
 	/**
-	 * Name is not updated because update() is called from a method of the very same object, 
-	 * bypassing Spring proxy wrapping.
+	 * Test with update() method called from a method of the very same object, bypassing Spring proxy wrapping.
 	 */
 	@Test
 	public void testUpdateWithInnerUpdateMethodCalled() {
@@ -78,6 +77,19 @@ public class UserServiceTest {
 
 		userService.updateWithInnerUpdateMethodCalled(id, updatedName);
 
-		assertThat(userRepo.findOne(id)).hasFieldOrPropertyWithValue("name", oldValue);
+		assertThat(userRepo.findById(id).orElseThrow()).hasFieldOrPropertyWithValue("name", oldValue);
+	}
+
+	/**
+	 * Test with update() method called from a method of the very same object, bypassing Spring proxy wrapping. (same as {@link #testUpdateWithInnerUpdateMethodCalled()}
+	 * But this time, everything is already executed in a transaction thanks to the {@link TransactionHandler}
+	 */
+	@Test
+	public void testUpdateWithinTransactionHandlerMethodCalled() {
+		updatedName = "updateWithinTransactionHandlerMethodCalled";
+
+		transactionHandler.runInTransaction(() -> userService.updateWithInnerUpdateMethodCalled(id, updatedName));
+
+		assertThat(userRepo.findById(id).orElseThrow()).hasFieldOrPropertyWithValue("name", updatedName);
 	}
 }
